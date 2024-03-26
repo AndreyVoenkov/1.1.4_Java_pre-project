@@ -2,14 +2,12 @@ package jm.task.core.jdbc.dao;
 
 import jm.task.core.jdbc.model.User;
 import jm.task.core.jdbc.util.Util;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.SQLSyntaxErrorException;
 import java.sql.ResultSet;
-import java.sql.Connection;
 
 
 public class UserDaoJDBCImpl implements UserDao {
@@ -17,18 +15,21 @@ public class UserDaoJDBCImpl implements UserDao {
     }
 
     public void createUsersTable() {
-        try (PreparedStatement statement = Util.getConnection()
-                .prepareStatement("CREATE TABLE users " +
-                        "(id INT NOT NULL AUTO_INCREMENT, " +
-                        "name VARCHAR(255), " +
-                        "lastName VARCHAR(255), " +
-                        "age INT UNSIGNED, " +
-                        "PRIMARY KEY (id))")
-        ) {
-            statement.executeUpdate();
-            // System.out.println("Таблица создана");
-        } catch (SQLSyntaxErrorException e) {
-            System.out.println("Такая таблица уже существует");
+        try (ResultSet resultSet = Util.getConnection().getMetaData()
+                .getTables(null, null, "usersTable", null)) {
+            if (!resultSet.next()) {
+                try (PreparedStatement statement = Util.getConnection()
+                        .prepareStatement("CREATE TABLE usersTable " +
+                                "(id INT NOT NULL AUTO_INCREMENT, " +
+                                "name VARCHAR(255), " +
+                                "lastName VARCHAR(255), " +
+                                "age INT UNSIGNED, " +
+                                "PRIMARY KEY (id))")
+                ) {
+                    statement.executeUpdate();
+//                     System.out.println("Таблица создана");
+                }
+            }
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -36,7 +37,7 @@ public class UserDaoJDBCImpl implements UserDao {
 
     public void dropUsersTable() {
         try (PreparedStatement statement = Util.getConnection()
-                .prepareStatement("DROP TABLE users")) {
+                .prepareStatement("DROP TABLE usersTable")) {
             statement.executeUpdate();
             // System.out.println("Таблица удалена");
         } catch (SQLSyntaxErrorException e) {
@@ -48,7 +49,7 @@ public class UserDaoJDBCImpl implements UserDao {
 
     public void saveUser(String name, String lastName, byte age) {
         try (PreparedStatement statement = Util.getConnection()
-                .prepareStatement("INSERT INTO users (name, lastName, age) VALUES (?, ?, ?)")) {
+                .prepareStatement("INSERT INTO usersTable (name, lastName, age) VALUES (?, ?, ?)")) {
             statement.setString(1, name);
             statement.setString(2, lastName);
             statement.setByte(3, age);
@@ -63,7 +64,7 @@ public class UserDaoJDBCImpl implements UserDao {
 
     public void removeUserById(long id) {
         try (PreparedStatement statement = Util.getConnection()
-                .prepareStatement("DELETE FROM users WHERE id = ?")) {
+                .prepareStatement("DELETE FROM usersTable WHERE id = ?")) {
             statement.setLong(1, id);
             if (statement.executeUpdate() > 0) {
                 System.out.println("User " + id + " удален");
@@ -80,7 +81,7 @@ public class UserDaoJDBCImpl implements UserDao {
     public List<User> getAllUsers() {
         List<User> list = new ArrayList<>();
         try (PreparedStatement statement = Util.getConnection()
-                .prepareStatement("select * from users");
+                .prepareStatement("select * from usersTable");
              ResultSet resultSet = statement.executeQuery()) {
             while (resultSet.next()) {
                 User user = new User(
@@ -100,7 +101,7 @@ public class UserDaoJDBCImpl implements UserDao {
 
     public void cleanUsersTable() {
         try (PreparedStatement statement = Util.getConnection()
-                .prepareStatement("delete from users")) {
+                .prepareStatement("delete from usersTable")) {
             statement.executeUpdate();
             // System.out.println("Таблица очищена");
         } catch (SQLSyntaxErrorException e) {
