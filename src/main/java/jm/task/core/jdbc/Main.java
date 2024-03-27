@@ -11,22 +11,21 @@ import org.hibernate.Transaction;
 public class Main {
     public static void main(String[] args) {
 
-        UserDao UserDao = new UserDaoJDBCImpl();
+        UserService userService = new UserServiceImpl();
 
-        UserDao.createUsersTable();
+        userService.createUsersTable();
 
-        UserDao.saveUser("Name1", "LastName1", (byte) 20);
-        UserDao.saveUser("Name2", "LastName2", (byte) 25);
-        UserDao.saveUser("Name3", "LastName3", (byte) 31);
-        UserDao.saveUser("Name4", "LastName4", (byte) 38);
+        userService.saveUser("Name1", "LastName1", (byte) 20);
+        userService.saveUser("Name2", "LastName2", (byte) 25);
+        userService.saveUser("Name3", "LastName3", (byte) 31);
+        userService.saveUser("Name4", "LastName4", (byte) 38);
 
-        UserDao.removeUserById(4);
-        UserDao.getAllUsers();
-        UserDao.cleanUsersTable();
-        UserDao.dropUsersTable();
+        userService.removeUserById(4);
+        userService.getAllUsers();
+        userService.cleanUsersTable();
+        userService.dropUsersTable();
         Util.closeConnection();
 //        Util.closeSessionFactory();
-
 
     }
 }
