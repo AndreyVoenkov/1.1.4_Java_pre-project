@@ -2,6 +2,7 @@ package jm.task.core.jdbc.dao;
 
 import jm.task.core.jdbc.model.User;
 import jm.task.core.jdbc.util.Util;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.sql.PreparedStatement;
@@ -15,33 +16,27 @@ public class UserDaoJDBCImpl implements UserDao {
     }
 
     public void createUsersTable() {
-        try (ResultSet resultSet = Util.getConnection().getMetaData()
-                .getTables(null, null, "usersTable", null)) {
-            if (!resultSet.next()) {
-                try (PreparedStatement statement = Util.getConnection()
-                        .prepareStatement("CREATE TABLE usersTable " +
-                                "(id INT NOT NULL AUTO_INCREMENT, " +
-                                "name VARCHAR(255), " +
-                                "lastName VARCHAR(255), " +
-                                "age INT UNSIGNED, " +
-                                "PRIMARY KEY (id))")
-                ) {
-                    statement.executeUpdate();
+        try (PreparedStatement statement = Util.getConnection()
+                .prepareStatement("CREATE TABLE if not exists usersTable " +
+                        "(id INT NOT NULL AUTO_INCREMENT, " +
+                        "name VARCHAR(255), " +
+                        "lastName VARCHAR(255), " +
+                        "age INT UNSIGNED, " +
+                        "PRIMARY KEY (id))")
+        ) {
+            statement.executeUpdate();
 //                     System.out.println("Таблица создана");
-                }
-            }
-        } catch (SQLException e) {
+        } catch (
+                SQLException e) {
             e.printStackTrace();
         }
     }
 
     public void dropUsersTable() {
         try (PreparedStatement statement = Util.getConnection()
-                .prepareStatement("DROP TABLE usersTable")) {
+                .prepareStatement("DROP TABLE if exists usersTable")) {
             statement.executeUpdate();
             // System.out.println("Таблица удалена");
-        } catch (SQLSyntaxErrorException e) {
-            System.out.println("Таблица для удаления не существует");
         } catch (SQLException e) {
             e.printStackTrace();
         }
